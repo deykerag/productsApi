@@ -5,13 +5,11 @@ API RESTful desarrollada con Laravel para la gestión de productos, sus precios 
 ## 📋 Tabla de contenidos
 
 - [Características](#-características)
-- [Tecnologías](#-tecnologías)
+- [Tecnologías](#tecnologías)
 - [Requisitos previos](#-requisitos-previos)
-- [Instalación](#-instalación)
+- [Instalación](#instalación)
 - [Documentación de la API](#-documentación-de-la-api)
 - [Endpoints disponibles](#-endpoints-disponibles)
-- [Ejemplos de uso](#-ejemplos-de-uso)
-- [Pruebas](#-pruebas)
 - [Autor](#-autor)
 
 ## 🚀 Características
@@ -25,7 +23,7 @@ API RESTful desarrollada con Laravel para la gestión de productos, sus precios 
 - Validación de datos de entrada y respuestas de error en formato JSON (`404`, `405`, `409`, `422`).
 - Documentación interactiva mediante Swagger UI y OpenAPI.
 
-## 🛠️ Tecnologías
+## Tecnologías
 
 | Tecnología                  | Uso                                 |
 | --------------------------- | ----------------------------------- |
@@ -57,7 +55,7 @@ composer --version
 git --version
 ```
 
-## ⚙️ Instalación
+## Instalación
 
 ### 1. Clonar el repositorio
 
