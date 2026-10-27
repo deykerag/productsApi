@@ -1,0 +1,1088 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "API de Productos",
+        "version": "1.1.0",
+        "description": "Documentación de la API REST de productos, precios por divisa y monedas para la prueba técnica de Begento Healthcare Solutions.",
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        }
+    },
+    "servers": [
+        {
+            "url": "/api/v1",
+            "description": "Ruta relativa al servidor que sirve la documentación."
+        }
+    ],
+    "security": [],
+    "tags": [
+        {
+            "name": "Productos",
+            "description": "Operaciones para administrar productos."
+        },
+        {
+            "name": "Precios",
+            "description": "Operaciones para administrar precios adicionales de los productos."
+        },
+        {
+            "name": "Monedas",
+            "description": "Operaciones para consultar y administrar las monedas disponibles."
+        }
+    ],
+    "paths": {
+        "/products": {
+            "get": {
+                "tags": ["Productos"],
+                "summary": "Listar productos",
+                "description": "Obtiene una lista paginada de productos, incluyendo la información de su moneda. Se devuelven 10 productos por página.",
+                "operationId": "listProducts",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Número de página que se desea consultar.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista paginada de productos obtenida correctamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductCollection"
+                                },
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": 2,
+                                            "name": "Producto 1",
+                                            "description": "Descripción del producto",
+                                            "price": "1.00",
+                                            "tax_cost": "20.00",
+                                            "manufacturing_cost": "2.00",
+                                            "currency": {
+                                                "id": 1,
+                                                "name": "Dólar estadounidense",
+                                                "code": "USD",
+                                                "symbol": "$",
+                                                "exchange_rate": "1.000000"
+                                            }
+                                        }
+                                    ],
+                                    "pagination": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 10,
+                                        "total": 1
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Productos"],
+                "summary": "Crear un producto",
+                "description": "Crea un producto nuevo asociado a una moneda existente. Todos los campos son obligatorios y no se permite enviar atributos adicionales.",
+                "operationId": "createProduct",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateProductRequest"
+                            },
+                            "example": {
+                                "name": "Producto nuevo",
+                                "description": "Descripción del producto",
+                                "price": 25.5,
+                                "currency_id": 1,
+                                "tax_cost": 5,
+                                "manufacturing_cost": 10
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Producto creado correctamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "id": 3,
+                                        "name": "Producto nuevo",
+                                        "description": "Descripción del producto",
+                                        "price": "25.50",
+                                        "tax_cost": "5.00",
+                                        "manufacturing_cost": "10.00",
+                                        "currency": {
+                                            "id": 1,
+                                            "name": "Dólar estadounidense",
+                                            "code": "USD",
+                                            "symbol": "$",
+                                            "exchange_rate": "1.000000"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Los datos enviados no cumplen las reglas de validación, incluida una moneda inexistente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "Identificador del producto.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "example": 1
+                }
+            ],
+            "get": {
+                "tags": ["Productos"],
+                "summary": "Obtener un producto",
+                "description": "Obtiene un producto específico por su ID, incluyendo la información de su moneda.",
+                "operationId": "getProduct",
+                "responses": {
+                    "200": {
+                        "description": "Producto encontrado.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "id": 2,
+                                        "name": "Producto 1",
+                                        "description": "Descripción del producto",
+                                        "price": "25.50",
+                                        "tax_cost": "5.00",
+                                        "manufacturing_cost": "10.00",
+                                        "currency": {
+                                            "id": 1,
+                                            "name": "Dólar estadounidense",
+                                            "code": "USD",
+                                            "symbol": "$",
+                                            "exchange_rate": "1.000000"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "El producto no existe.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "example": {
+                                    "message": "Recurso no encontrado."
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": ["Productos"],
+                "summary": "Actualizar un producto",
+                "description": "Actualiza los datos de un producto existente. Es un reemplazo completo: todos los campos son obligatorios. La ruta también responde a PATCH con el mismo cuerpo completo. No se permite enviar el atributo id.",
+                "operationId": "updateProduct",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateProductRequest"
+                            },
+                            "example": {
+                                "name": "Producto actualizado",
+                                "description": "Descripción actualizada",
+                                "price": 30,
+                                "currency_id": 1,
+                                "tax_cost": 6,
+                                "manufacturing_cost": 12
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Producto actualizado correctamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "id": 2,
+                                        "name": "Producto actualizado",
+                                        "description": "Descripción actualizada",
+                                        "price": "30.00",
+                                        "tax_cost": "6.00",
+                                        "manufacturing_cost": "12.00",
+                                        "currency": {
+                                            "id": 1,
+                                            "name": "Dólar estadounidense",
+                                            "code": "USD",
+                                            "symbol": "$",
+                                            "exchange_rate": "1.000000"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "El producto no existe.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "example": {
+                                    "message": "Recurso no encontrado."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Los datos enviados no cumplen las reglas de validación, incluida una moneda inexistente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Productos"],
+                "summary": "Eliminar un producto",
+                "description": "Elimina un producto existente por su ID. Sus precios adicionales se eliminan en cascada.",
+                "operationId": "deleteProduct",
+                "responses": {
+                    "204": {
+                        "description": "Producto eliminado correctamente. La respuesta no contiene cuerpo."
+                    },
+                    "404": {
+                        "description": "El producto no existe.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "example": {
+                                    "message": "Recurso no encontrado."
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}/prices": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "Identificador del producto.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "example": 1
+                }
+            ],
+            "get": {
+                "tags": ["Precios"],
+                "summary": "Listar precios de un producto",
+                "description": "Obtiene los precios adicionales registrados para un producto, incluyendo la moneda correspondiente.",
+                "operationId": "listProductPrices",
+                "responses": {
+                    "200": {
+                        "description": "Precios obtenidos correctamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductPriceCollection"
+                                },
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": 1,
+                                            "product_id": 2,
+                                            "currency_id": 2,
+                                            "price": "23.50",
+                                            "currency": {
+                                                "id": 2,
+                                                "name": "Euro",
+                                                "code": "EUR",
+                                                "symbol": "€",
+                                                "exchange_rate": "1.080000"
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "El producto no existe.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "example": {
+                                    "message": "Recurso no encontrado."
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Precios"],
+                "summary": "Crear un precio para un producto",
+                "description": "Registra un precio adicional para un producto en una moneda existente. No se permite registrar más de un precio para la misma combinación de producto y moneda. El producto se toma de la ruta y no debe enviarse en el cuerpo.",
+                "operationId": "createProductPrice",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateProductPriceRequest"
+                            },
+                            "example": {
+                                "currency_id": 2,
+                                "price": 23.5
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Precio creado correctamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductPriceResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "id": 1,
+                                        "product_id": 2,
+                                        "currency_id": 2,
+                                        "price": "23.50",
+                                        "currency": {
+                                            "id": 2,
+                                            "name": "Euro",
+                                            "code": "EUR",
+                                            "symbol": "€",
+                                            "exchange_rate": "1.080000"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "El producto no existe.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "example": {
+                                    "message": "Recurso no encontrado."
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Ya existe un precio para este producto en la moneda indicada.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "example": {
+                                    "message": "Ya existe un precio para este producto en la moneda indicada."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Los datos enviados no cumplen las reglas de validación, incluida una moneda inexistente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/currencies": {
+            "get": {
+                "tags": ["Monedas"],
+                "summary": "Listar monedas",
+                "description": "Obtiene todas las monedas disponibles. Usa estos IDs como currency_id al crear productos o precios.",
+                "operationId": "listCurrencies",
+                "responses": {
+                    "200": {
+                        "description": "Lista de monedas obtenida correctamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CurrencyCollection"
+                                },
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": 1,
+                                            "name": "Dólar estadounidense",
+                                            "code": "USD",
+                                            "symbol": "$",
+                                            "exchange_rate": "1.000000"
+                                        },
+                                        {
+                                            "id": 2,
+                                            "name": "Euro",
+                                            "code": "EUR",
+                                            "symbol": "€",
+                                            "exchange_rate": "0.920000"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Monedas"],
+                "summary": "Crear una moneda",
+                "description": "Registra una moneda nueva. El código debe ser único y se normaliza a mayúsculas.",
+                "operationId": "createCurrency",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCurrencyRequest"
+                            },
+                            "example": {
+                                "name": "Peso colombiano",
+                                "code": "COP",
+                                "symbol": "$",
+                                "exchange_rate": 4000.5
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Moneda creada correctamente.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CurrencyResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "id": 3,
+                                        "name": "Peso colombiano",
+                                        "code": "COP",
+                                        "symbol": "$",
+                                        "exchange_rate": "4000.500000"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Los datos enviados no cumplen las reglas de validación o el código ya existe.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/currencies/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "Identificador de la moneda.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "example": 1
+                }
+            ],
+            "delete": {
+                "tags": ["Monedas"],
+                "summary": "Eliminar una moneda",
+                "description": "Elimina una moneda solo si no está siendo utilizada por ningún producto ni precio de producto.",
+                "operationId": "deleteCurrency",
+                "responses": {
+                    "204": {
+                        "description": "Moneda eliminada correctamente. La respuesta no contiene cuerpo."
+                    },
+                    "404": {
+                        "description": "La moneda no existe.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "example": {
+                                    "message": "Recurso no encontrado."
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "La moneda está siendo utilizada por uno o más productos o precios de productos.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "example": {
+                                    "message": "No se puede eliminar la moneda porque está siendo utilizada por uno o más productos o precios de productos."
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Currency": {
+                "type": "object",
+                "required": ["id", "name", "code", "symbol", "exchange_rate"],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Dólar estadounidense"
+                    },
+                    "code": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 3,
+                        "example": "USD"
+                    },
+                    "symbol": {
+                        "type": "string",
+                        "example": "$"
+                    },
+                    "exchange_rate": {
+                        "type": "string",
+                        "description": "Tasa de cambio con 6 decimales.",
+                        "example": "1.000000"
+                    }
+                }
+            },
+            "Product": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "price",
+                    "tax_cost",
+                    "manufacturing_cost",
+                    "currency"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Producto 1"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Descripción del producto"
+                    },
+                    "price": {
+                        "type": "string",
+                        "description": "Precio en la moneda base del producto, con 2 decimales.",
+                        "example": "25.50"
+                    },
+                    "tax_cost": {
+                        "type": "string",
+                        "description": "Costo de impuestos, con 2 decimales.",
+                        "example": "5.00"
+                    },
+                    "manufacturing_cost": {
+                        "type": "string",
+                        "description": "Costo de fabricación, con 2 decimales.",
+                        "example": "10.00"
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    }
+                }
+            },
+            "ProductPrice": {
+                "type": "object",
+                "required": ["id", "product_id", "currency_id", "price", "currency"],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "product_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "currency_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "price": {
+                        "type": "string",
+                        "description": "Precio del producto en la moneda indicada, con 2 decimales.",
+                        "example": "23.50"
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    }
+                }
+            },
+            "Pagination": {
+                "type": "object",
+                "required": ["current_page", "last_page", "per_page", "total"],
+                "properties": {
+                    "current_page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "last_page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "per_page": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "total": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                }
+            },
+            "ProductCollection": {
+                "type": "object",
+                "required": ["data", "pagination"],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Product"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/Pagination"
+                    }
+                }
+            },
+            "ProductResponse": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Product"
+                    }
+                }
+            },
+            "ProductPriceCollection": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProductPrice"
+                        }
+                    }
+                }
+            },
+            "ProductPriceResponse": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/ProductPrice"
+                    }
+                }
+            },
+            "CurrencyCollection": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Currency"
+                        }
+                    }
+                }
+            },
+            "CurrencyResponse": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Currency"
+                    }
+                }
+            },
+            "CreateProductRequest": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "description",
+                    "price",
+                    "currency_id",
+                    "tax_cost",
+                    "manufacturing_cost"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Producto nuevo"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Descripción del producto"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "minimum": 0,
+                        "description": "Precio del producto. Se acepta un número o una cadena numérica.",
+                        "example": 25.5
+                    },
+                    "currency_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "ID de una moneda existente.",
+                        "example": 1
+                    },
+                    "tax_cost": {
+                        "type": "number",
+                        "format": "float",
+                        "minimum": 0,
+                        "description": "Costo de impuestos. Se acepta un número o una cadena numérica.",
+                        "example": 5
+                    },
+                    "manufacturing_cost": {
+                        "type": "number",
+                        "format": "float",
+                        "minimum": 0,
+                        "description": "Costo de fabricación. Se acepta un número o una cadena numérica.",
+                        "example": 10
+                    }
+                }
+            },
+            "UpdateProductRequest": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "description",
+                    "price",
+                    "currency_id",
+                    "tax_cost",
+                    "manufacturing_cost"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Producto actualizado"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Descripción actualizada"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "minimum": 0,
+                        "description": "Precio del producto. Se acepta un número o una cadena numérica.",
+                        "example": 30
+                    },
+                    "currency_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "ID de una moneda existente.",
+                        "example": 1
+                    },
+                    "tax_cost": {
+                        "type": "number",
+                        "format": "float",
+                        "minimum": 0,
+                        "description": "Costo de impuestos. Se acepta un número o una cadena numérica.",
+                        "example": 6
+                    },
+                    "manufacturing_cost": {
+                        "type": "number",
+                        "format": "float",
+                        "minimum": 0,
+                        "description": "Costo de fabricación. Se acepta un número o una cadena numérica.",
+                        "example": 12
+                    }
+                }
+            },
+            "CreateProductPriceRequest": {
+                "type": "object",
+                "required": ["currency_id", "price"],
+                "additionalProperties": false,
+                "properties": {
+                    "currency_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "ID de una moneda existente.",
+                        "example": 2
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "minimum": 0,
+                        "description": "Precio del producto en la moneda indicada. Se acepta un número o una cadena numérica.",
+                        "example": 23.5
+                    }
+                }
+            },
+            "CreateCurrencyRequest": {
+                "type": "object",
+                "required": ["name", "code", "symbol", "exchange_rate"],
+                "additionalProperties": false,
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Peso colombiano"
+                    },
+                    "code": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 3,
+                        "pattern": "^[A-Za-z]{3}$",
+                        "description": "Código ISO de 3 letras. Se normaliza a mayúsculas.",
+                        "example": "COP"
+                    },
+                    "symbol": {
+                        "type": "string",
+                        "maxLength": 10,
+                        "example": "$"
+                    },
+                    "exchange_rate": {
+                        "type": "number",
+                        "format": "float",
+                        "minimum": 0,
+                        "exclusiveMinimum": true,
+                        "description": "Tasa de cambio mayor que cero.",
+                        "example": 4000.5
+                    }
+                }
+            },
+            "ValidationError": {
+                "type": "object",
+                "required": ["message", "errors"],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "Resumen del primer error de validación; si hay más, agrega ' (and N more errors)'."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "description": "Errores agrupados por campo.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "example": {
+                            "name": ["El nombre del producto es obligatorio."],
+                            "price": ["El precio del producto es obligatorio."]
+                        }
+                    }
+                }
+            },
+            "ErrorMessage": {
+                "type": "object",
+                "required": ["message"],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Recurso no encontrado."
+                    }
+                }
+            }
+        }
+    }
+}
